@@ -22,7 +22,7 @@ RUN apt-get update \
  && ln -s /usr/bin/python3 /usr/bin/python \
  && easy_install3 pip py4j \
  && apt-get clean \
- && openssh-server openssh-client openssl
+ && openssh-server openssh-client openssl\
  && rm -rf /var/lib/apt/lists/*
 
 # 1. 安装 OpenSSH, OpenSSL, bzip2-devel
