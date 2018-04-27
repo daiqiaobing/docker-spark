@@ -22,8 +22,19 @@ RUN apt-get update \
  && ln -s /usr/bin/python3 /usr/bin/python \
  && easy_install3 pip py4j \
  && apt-get clean \
+ && openssh-server openssh-client openssl
  && rm -rf /var/lib/apt/lists/*
 
+# 1. 安装 OpenSSH, OpenSSL, bzip2-devel
+# 2. 同时配置SSH免密钥登陆
+RUN    ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    
+ADD config/ssh/ssh_config /root/.ssh/config
+RUN chmod 600 /root/.ssh/config && \
+    chown root:root /root/.ssh/config
+ 
+ 
 # http://blog.stuart.axelbrooke.com/python-3-on-spark-return-of-the-pythonhashseed
 ENV PYTHONHASHSEED 0
 ENV PYTHONIOENCODING UTF-8

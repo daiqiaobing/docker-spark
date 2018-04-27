@@ -1,0 +1,5 @@
+version: '1.0'
+services:
+  os-jvm:
+    build: ./
+    image: mango/spark:2.3
