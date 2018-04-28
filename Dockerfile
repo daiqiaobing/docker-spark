@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM daocloud.io/library/ubuntu:14.04.1
 MAINTAINER Getty Images "https://github.com/gettyimages"
 
 RUN apt-get update \
