@@ -32,10 +32,11 @@ RUN \
   apt-get install -y oracle-java8-installer && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/oracle-jdk8-installer
-
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV PATH=$PATH:$JAVA_HOME/bin:.
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-  
+
  
 # HADOOP
 ENV HADOOP_VERSION 2.8.3
