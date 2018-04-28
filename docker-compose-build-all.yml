@@ -1,0 +1,9 @@
+version: '2.2'
+services:
+  os-jvm:
+    build: ./jdk/
+    image: mango/os-jdk8:ubuntu
+
+  hadoop-2.7.5:
+    build: ./services/hadoop-docker/2.7.5
+    image: mango/hadoop:2.7.5

@@ -1,0 +1,39 @@
+#!/bin/bash
+bash /etc/init.d/ssh start
+
+master="hadoop-master"
+flagFilename="/opt/hadoop/is_dfs_format"
+zkServer="hadoop-slave1;hadoop-slave2;hadoop-slave3"
+nm2Server="hadoop-slave1"
+zkFlagFilename="/works/zookeeper/myid"
+
+while read myline
+	do
+		if [[ $myline == *$master* ]];	then
+			#建立HDFS目录，日志目录. 格式化NameNode
+			# 判断namenode是否被格式化过，如果格式化了，就不再格式化，否则就格式化
+			if [[ ! -f "$flagFilename" ]]; then  
+				mkdir -p /works/hadoop/dfs/name && mkdir -p /works/hadoop/dfs/data && mkdir -p /works/hadoop/dfs/namesecondary && mkdir $HADOOP_HOME/logs
+				$HADOOP_HOME/bin/hdfs zkfc -formatZK  
+				$HADOOP_HOME/bin/hdfs namenode -format  # namenode格式化
+				echo "true" >> $flagFilename		
+			fi
+			bash $HADOOP_HOME/sbin/start-all.sh
+			bash $HADOOP_HOME/sbin/hadoop-daemon.sh start zkfc
+			bash $HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
+			break
+		else
+			if [[ $zkServer == *$myline* ]];	then
+				if [[ ! -f "$zkFlagFilename" ]]; then  
+					mkdir -p /works/zookeeper
+					echo ${myline#*"hadoop-slave"} >> $zkFlagFilename
+				fi
+				if [[ $nm2Server == *$myline* ]];	then
+					bash $HADOOP_HOME/sbin/hadoop-daemon.sh start zkfc
+				fi 
+				bash $ZOOKEEPER_HOME/bin/zkServer.sh start
+				bash $HADOOP_HOME/sbin/hadoop-daemon.sh start journalnode
+			fi
+			break
+		fi
+done < /etc/hostname

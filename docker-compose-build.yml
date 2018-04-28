@@ -1,5 +1,0 @@
-version: '2.2'
-services:
-  mango-spark:
-    build: ./
-    image: mango/spark:2.3

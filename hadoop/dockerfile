@@ -1,0 +1,60 @@
+FROM mango/os-jvm:ubuntu
+
+MAINTAINER mango <1192297699@qq.com>
+
+USER root
+
+ENV HADOOP_HOME=/opt/hadoop
+ENV ZOOKEEPER_HOME=/opt/zookeeper
+
+ENV HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native/
+ENV PATH=$PATH:/root/protobuf/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:.
+
+# zookeeper 环境变量配置
+ENV PATH=$PATH:.:$ZOOKEEPER_HOME/bin
+
+
+#安装Hadoop
+COPY ./hadoop-2.7.5.tar.gz ./
+# RUN wget http://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-2.7.5/hadoop-2.7.5.tar.gz 
+RUN tar -xzvf hadoop-2.7.5.tar.gz -C /root/ && \
+    mv /root/hadoop-2.7.5 $HADOOP_HOME && \
+    rm -rf hadoop-2.7.5.tar.gz && \
+    rm -rf $HADOOP_HOME/bin/*.cmd && \
+    rm -rf $HADOOP_HOME/sbin/*.cmd && \
+    rm -rf $HADOOP_CONF_DIR/*.cmd && \
+    rm -rf $HADOOP_CONF_DIR/*.template && \
+    rm -rf $HADOOP_CONF_DIR/*.example
+
+#拷贝环境变量配置文件
+ADD config/other/bashrc /root/.bashrc
+
+#拷贝Hadoop配置文件
+ADD config/hadoop/* $HADOOP_HOME/etc/hadoop/
+
+
+
+# 安装 zookeeper 3.4.10
+COPY ./zookeeper-3.4.10.tar.gz /root
+# RUN wget https://mirrors.tuna.tsinghua.edu.cn/apache/zookeeper/zookeeper-3.4.10/zookeeper-3.4.10.tar.gz && \
+RUN	tar -xzvf /root/zookeeper-3.4.10.tar.gz -C /root/ && \
+    mv /root/zookeeper-3.4.10 $ZOOKEEPER_HOME && \
+	rm -rf /root/zookeeper-3.4.10.tar.gz && \
+	rm -rf $ZOOKEEPER_HOME/bin/*.cmd && \
+	rm -rf $ZOOKEEPER_HOME/dist-maven && \
+	rm -rf $ZOOKEEPER_HOME/docs && \
+	rm -rf $ZOOKEEPER_HOME/src
+
+# 开放2181端口
+# EXPOSE 2181
+
+# 拷贝zookeeper配置文件
+ADD config/zookeeper/zoo.cfg $ZOOKEEPER_HOME/conf/
+
+COPY ./init.sh /opt/
+COPY ./base.sh /opt/
+
+RUN chmod a+x /opt/init.sh
+RUN chmod a+x /opt/base.sh
+ENTRYPOINT [ "sh", "-c", "/opt/init.sh; bash"]

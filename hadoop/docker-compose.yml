@@ -1,0 +1,70 @@
+version: '2'
+services:
+  hadoop-slave1:
+    image: mango/hadoop-zk:2.7.5
+    container_name: hadoop-slave1
+    ports:
+      - "50071:50070"
+      - "8089:8088"
+    volumes:
+      - "./volume/hadoop/work/slave1:/works"
+      - "./volume/hadoop/logs/slave1:/root/hadoop/logs/"
+      - "./volume/hadoop/tmp/slave1:/tmp"
+      - "./volume/hadoop/step:/opt/hadoop/step"
+    hostname: hadoop-slave1
+    links:
+      - hadoop-slave2
+      - hadoop-slave3    
+    networks:
+      - hadoop-zk
+    tty: true
+  
+  hadoop-slave2:
+    image: mango/hadoop-zk:2.7.5
+    container_name: hadoop-slave2
+    volumes:
+      - "./volume/hadoop/work/slave2:/works"
+      - "./volume/hadoop/logs/slave2:/root/hadoop/logs/"
+      - "./volume/hadoop/tmp/slave2:/tmp"    
+      - "./volume/hadoop/step:/opt/hadoop/step"
+    hostname: hadoop-slave2
+    networks:
+      - hadoop-zk
+    tty: true
+      
+  hadoop-slave3:
+    image: mango/hadoop-zk:2.7.5
+    container_name: hadoop-slave3
+    volumes:
+      - "./volume/hadoop/work/slave3:/works"
+      - "./volume/hadoop/logs/slave3:/opt/hadoop/logs/"
+      - "./volume/hadoop/tmp/slave3:/tmp"
+      - "./volume/hadoop/step:/opt/hadoop/step"
+    hostname: hadoop-slave3
+    networks:
+      - hadoop-zk
+    tty: true  
+
+  hadoop-master:
+    image: mango/hadoop-zk:2.7.5
+    container_name: hadoop-master
+    entrypoint: ["sh", "-c", "/opt/init.sh; bash"]
+    ports:
+      - "50070:50070"
+      - "8088:8088"
+    volumes:
+      - "./volume/hadoop/work/master:/works"
+      - "./volume/hadoop/logs/master:/opt/hadoop/logs/"
+      - "./volume/hadoop/tmp/master:/tmp"
+      - "./volume/hadoop/step:/opt/hadoop/step"
+    hostname: hadoop-master
+    links:
+      - hadoop-slave1
+      - hadoop-slave2
+      - hadoop-slave3      
+    networks:
+      - hadoop-zk
+    tty: true
+
+networks:
+  hadoop-zk:
