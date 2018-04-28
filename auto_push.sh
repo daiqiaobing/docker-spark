@@ -1,6 +1,6 @@
 #!/bin/sh
 
 git add ./
-date=`date -d next-day +%Y%m%d`
+date=`date +%Y%m%d`
 git commit -m $date
 git push origin master
